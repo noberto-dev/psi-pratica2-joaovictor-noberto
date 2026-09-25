@@ -1,33 +1,50 @@
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload, joinedload
-from app.models import Autor, Livro
+from models import Autor, Livro
 from database import ENGINE, nova_sessao
 
 session = nova_sessao(ENGINE)
 
 def listar_livros(session):
-    statement = select(Livro)
+    statement = select(Livro).options(joinedload(Livro.autor))
     livros = session.scalars(statement).all()
 
-    return livros
+    for l in livros:
+            print(f"""
+                TITULO : {l.titulo} \n
+                ANO : {l.ano} \n
+                AUTOR : {l.autor.nome} \n
+            """)
+    
 
 
 def livros_por_autor(session, nome_autor):
     statement = (
         select(Livro)
-        .where(Livro.autor.nome.like(f"{nome_autor}"))
+        .where(Livro.autor.has(Autor.nome.like(f"{nome_autor}")))
     )
 
     livros = session.scalars(statement).all()
 
-    return livros
+    for l in livros:
+            print(f"""
+                TITULO : {l.titulo} \n
+                ANO : {l.ano} \n
+                AUTOR : {l.autor.nome} \n
+            """)
+    
+
 
 def buscar_livros(session, trecho):
     statement = select(Livro).where(Livro.titulo.like(f"%{trecho}%"))
     livros = session.scalars(statement).all()
     
-    return livros
-
+    for l in livros:
+        print(f"""
+            TITULO : {l.titulo} \n
+            ANO : {l.ano} \n
+            AUTOR : {l.autor.nome} \n
+        """)
 
 def listar_autores_com_quantidade(session):
     statement = select(Autor).options(selectinload(Autor.livros))
@@ -40,7 +57,7 @@ def listar_autores_com_quantidade(session):
 
 def detalhes_livro(session, titulo):
     statement = select(Livro).where(Livro.titulo.like(f"{titulo}")).options(joinedload(Livro.autor))
-    livro = session.scalars(statement).one()
+    livro = session.scalars(statement).first()
 
     print(f"""
         TITULO : {livro.titulo} \n

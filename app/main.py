@@ -1,12 +1,12 @@
-from app.consultas import (
+from consultas import (
     buscar_livros,
     detalhes_livro,
     listar_autores_com_quantidade,
     listar_livros,
     livros_por_autor,
 )
-from app.database import criar_banco, nova_sessao
-from app.seed import popular_banco
+from database import criar_banco, nova_sessao
+from seed import popular_banco
 
 
 criar_banco()
